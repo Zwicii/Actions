@@ -14,3 +14,16 @@ def divide(a: int, b: int) -> float:
     if b == 0:
         raise ZeroDivisionError("You can't divide by zero!")
     return a / b
+
+
+def multiply(a: int, b: int) -> int:
+    """Return the result of a multiplication operation between two numbers.
+
+    Args:
+        a (int): The first number.
+        b (int): The second number.
+
+    Returns:
+        int: The result of the multiplication operation.
+    """
+    return a * b
