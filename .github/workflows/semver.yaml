@@ -11,52 +11,34 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    name: ${{ github.event_name == 'pull_request' && format('Next: v{0}', steps.bump.outputs.version) || format('v{0}', steps.bump.outputs.version) }}
     
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 🎯 Determine new version
-        id: version
+      - name: 🎯 Determine version
+        id: bump
         run: |
-          # 📋 Get current version or default to 1.0.0
           CURRENT=$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.0")
+          BRANCH=${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
           
-          # 🌿 Get branch name (for PR: head branch, for push: main)
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            BRANCH="${{ github.head_ref }}"
-          else
-            BRANCH="${{ github.ref_name }}"
-          fi
-          
-          echo "📦 Current version: $CURRENT"
-          echo "🌿 Branch: $BRANCH"
-          
-          # 🔍 Parse version numbers
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
           
-          # 🚀 Bump based on branch name
           case "$BRANCH" in
-            majorupdate/*) NEW="$((MAJOR+1)).0.0"; echo "💥 Major version bump!" ;;
-            feature/*)     NEW="$MAJOR.$((MINOR+1)).0"; echo "✨ Feature version bump!" ;;
-            *)             NEW="$MAJOR.$MINOR.$((PATCH+1))"; echo "🔧 Patch version bump!" ;;
+            majorupdate/*) NEW="$((MAJOR+1)).0.0" ;;
+            feature/*)     NEW="$MAJOR.$((MINOR+1)).0" ;;
+            *)             NEW="$MAJOR.$MINOR.$((PATCH+1))" ;;
           esac
           
-          echo "new_version=$NEW" >> $GITHUB_OUTPUT
-          echo "🎯 New version will be: $NEW"
+          echo "version=$NEW" >> $GITHUB_OUTPUT
+          echo "📦 $CURRENT → 🎯 $NEW"
 
-      - name: 🏷️ Create and push tag
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - name: 🏷️ Create tag
+        if: github.event_name == 'push'
         run: |
-          # 🛠️ Configure git
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          
-          # 📌 Create tag
-          git tag -a "${{ steps.version.outputs.new_version }}" -m "Version ${{ steps.version.outputs.new_version }}"
-          
-          # 🚢 Push tag
-          git push origin "${{ steps.version.outputs.new_version }}"
-          
-          echo "✅ Successfully tagged and pushed version: ${{ steps.version.outputs.new_version }}"
+          git tag -a "v${{ steps.bump.outputs.version }}" -m "v${{ steps.bump.outputs.version }}"
+          git push origin "v${{ steps.bump.outputs.version }}"
