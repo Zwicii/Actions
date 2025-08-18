@@ -9,18 +9,29 @@ jobs:
   bump-version:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      # 1️⃣ Checkout the repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
+      # 2️⃣ Calculate next semantic version
       - id: semver-tag
         uses: gandarez/semver-action@master
         with:
           branching_model: "trunk-based"
           main_branch_name: "main"
-          # Your branch patterns for version bumps
-          major_pattern: "^majorupdate/.*"   # major bump
-          minor_pattern: "^feature/.*"       # minor bump
-          patch_pattern: ".*"                # patch bump for everything else
+          major_pattern: "^majorupdate/.*"
+          minor_pattern: "^feature/.*"
+          patch_pattern: ".*"      # everything else
+          prefix: ""               # no 'v' prefix
 
-      - name: "Created tag"
-        run: echo "tag ${{ steps.semver-tag.outputs.semver_tag }}"
+      # 3️⃣ Push the tag to GitHub
+      - name: Push tag to GitHub
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag ${{ steps.semver-tag.outputs.semver_tag }}
+          git push origin ${{ steps.semver-tag.outputs.semver_tag }}
+
+      # 4️⃣ Output the new version
+      - name: Show new version
+        run: echo "New version: ${{ steps.semver-tag.outputs.semver_tag }}"
