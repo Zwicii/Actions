@@ -9,31 +9,21 @@ jobs:
   bump-version:
     runs-on: ubuntu-latest
     steps:
-      # 1️⃣ Checkout the repo
-      - name: Checkout repo
-        uses: actions/checkout@v3
+
+      # 1️⃣ Checkout repo with full history
+      - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # get full history to find tags
+          fetch-depth: 0
 
-      - name: Set up Git
-        run: |
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      # 2️⃣ Determine the branch and current version
+      # 2️⃣ Determine current version & branch
       - name: Get current version
         id: get_version
         run: |
-          # Use the latest tag or default to 1.0.0
           VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.0")
-          echo "Current version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "branch=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
 
-          # Get branch name
-          BRANCH_NAME=${GITHUB_REF##*/}
-          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
-
-      # 3️⃣ Calculate the next version
+      # 3️⃣ Calculate next version
       - name: Bump version
         id: bump_version
         run: |
@@ -51,18 +41,18 @@ jobs:
           fi
 
           NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-          echo "New version: $NEW_VERSION"
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
-      # 4️⃣ Tag and push
-      - name: Push Tag
-        uses: actions-ecosystem/action-push-tag@v1
-        with:
-          tag: ${{ steps.bump_version.outputs.new_version }}
-          message: '${{ steps.bump_version.outputs.new_version }}'
+      # 4️⃣ Push tag
+      - run: |
+          tag=${{ steps.bump_version.outputs.new_version }}
+          message='${{ steps.bump_version.outputs.new_version }}'
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git tag -a "${tag}" -m "${message}"
+          git push origin "${tag}"
 
-      # 5️⃣ Output version
-      - name: Show new version
-        run: |
+      # 5️⃣ Output
+      - run: |
           echo "New version: ${{ steps.bump_version.outputs.new_version }}"
           echo "New tag: ${{ steps.bump_version.outputs.new_version }}"
