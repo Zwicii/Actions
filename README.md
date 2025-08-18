@@ -8,4 +8,4 @@
 [![Version](https://img.shields.io/github/v/tag/Zwicii/Actions?label=version&sort=semver)](https://github.com/Zwicii/Actions/tags)
 
 
-[![Version](https://img.shields.io/github/v/tag/Zwicii/Actions?label=version&sort=semver&style=plastic)](https://github.com/Zwicii/Actions/tags)
+[![Version](https://img.shields.io/github/v/tag/Zwicii/Actions?label=version&sort=semver&style=flat-square)](https://github.com/Zwicii/Actions/tags)
