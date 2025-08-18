@@ -36,6 +36,7 @@ jobs:
             *)             NEW="$MAJOR.$MINOR.$((PATCH+1))" ;;
           esac
           
+          echo "BRANCH=$BRANCH"
           echo "version=$NEW" >> $GITHUB_OUTPUT
           echo "📦 $CURRENT → 🎯 $NEW"
 
