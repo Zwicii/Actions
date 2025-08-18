@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  determine:
+  calculate:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.bump.outputs.version }}
@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 🎯 Determine version
+      - name: 🎯 Calculate Version
         id: bump
         run: |
           CURRENT=$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.0")
@@ -39,9 +39,9 @@ jobs:
           echo "📦 $CURRENT → 🎯 $NEW"
 
   tag:
-    needs: determine
+    needs: calculate
     runs-on: ubuntu-latest
-    name: 🏷️ v${{ needs.determine.outputs.version }}
+    name: 🏷️ ${{ needs.calculate.outputs.version }}
     permissions:
       contents: write
     steps:
@@ -49,14 +49,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 🏷️ Create tag
+      - name: 🏷️ Create and Push Tag
         if: github.event_name == 'push'
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git tag -a "v${{ needs.determine.outputs.version }}" -m "v${{ needs.determine.outputs.version }}"
-          git push origin "v${{ needs.determine.outputs.version }}"
+          git tag -a "v${{ needs.calculate.outputs.version }}" -m "v${{ needs.calculate.outputs.version }}"
+          git push origin "v${{ needs.calculate.outputs.version }}"
           
-      - name: 👀 Preview
-        if: github.event_name == 'pull_request'
-        run: echo "Will create v${{ needs.determine.outputs.version }} when merged"
