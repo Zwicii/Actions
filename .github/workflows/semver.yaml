@@ -56,10 +56,10 @@ jobs:
 
       # 4️⃣ Tag and push
       - name: Push Tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git push origin --tags
+        uses: actions-ecosystem/action-push-tag@v1
+        with:
+          tag: ${{ steps.bump_version.outputs.new_version }}
+          message: '${{ steps.bump_version.outputs.new_version }}'
 
       # 5️⃣ Output version
       - name: Show new version
