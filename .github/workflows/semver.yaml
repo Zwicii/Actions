@@ -1,0 +1,26 @@
+name: Version Bump
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - id: semver-tag
+        uses: gandarez/semver-action@master
+        with:
+          branching_model: "trunk-based"
+          main_branch_name: "main"
+          # Your branch patterns for version bumps
+          major_pattern: "^majorupdate/.*"   # major bump
+          minor_pattern: "^feature/.*"       # minor bump
+          patch_pattern: ".*"                # patch bump for everything else
+
+      - name: "Created tag"
+        run: echo "tag ${{ steps.semver-tag.outputs.semver_tag }}"
