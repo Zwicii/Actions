@@ -15,7 +15,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 🔢 Calculate new version
+      - name: 🎯 Determine new version
         id: version
         run: |
           # 📋 Get current version or default to 1.0.0
