@@ -31,8 +31,8 @@ jobs:
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
           
           case "$BRANCH" in
-            majorupdate/*) NEW="$((MAJOR+1)).0.0" ;;
-            feature/*)     NEW="$MAJOR.$((MINOR+1)).0" ;;
+            *majorupdate*) NEW="$((MAJOR+1)).0.0" ;;
+            *feature*)     NEW="$MAJOR.$((MINOR+1)).0" ;;
             *)             NEW="$MAJOR.$MINOR.$((PATCH+1))" ;;
           esac
           
