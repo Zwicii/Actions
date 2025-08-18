@@ -1,8 +1,7 @@
 # Actions
 
 
-[![CI](https://github.com/Zwicii/Actions/actions/workflows/ci.yaml/badge.svg)](https://github.com/Zwicii/Actions/actions/workflows/semver.yaml)
-
+[![📝 Semantic Versioning](https://github.com/Zwicii/Actions/actions/workflows/semver.yaml/badge.svg)](https://github.com/Zwicii/Actions/actions/workflows/semver.yaml)
 
 
 
