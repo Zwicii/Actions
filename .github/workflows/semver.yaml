@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - test123
 
 jobs:
   bump-version:
@@ -34,4 +35,6 @@ jobs:
 
       # 4️⃣ Output the new version
       - name: Show new version
-        run: echo "New version: ${{ steps.semver-tag.outputs.semver_tag }}"
+        run: |
+          echo "New version: ${{ steps.semver-tag.outputs.semver_tag }}"
+          echo "New tag: ${{ steps.semver-tag.outputs.semver_tag }}"
