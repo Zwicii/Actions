@@ -40,9 +40,9 @@ jobs:
           echo "📦 $CURRENT → 🎯 $NEW"
 
   tag:
+    name: 🏷️ ${{ needs.calculate.outputs.version }}
     needs: calculate
     runs-on: ubuntu-latest
-    name: 🏷️ ${{ needs.calculate.outputs.version }}
     permissions:
       contents: write
     steps:
