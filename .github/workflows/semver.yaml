@@ -1,4 +1,4 @@
-name: Version Bump
+name: 📝 Semantic Versioning
 
 on:
   pull_request:
@@ -8,6 +8,7 @@ on:
 
 jobs:
   calculate:
+    name: 🎯 Calculate Next Version
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.bump.outputs.version }}
@@ -16,7 +17,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 🎯 Calculate Version
+      - name: 🔢 Determine Version
         id: bump
         run: |
           CURRENT=$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.0")
