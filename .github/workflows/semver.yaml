@@ -7,12 +7,10 @@ on:
     branches: [main]
 
 jobs:
-  version:
+  determine:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    name: ${{ github.event_name == 'pull_request' && format('Next: v{0}', steps.bump.outputs.version) || format('v{0}', steps.bump.outputs.version) }}
-    
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,7 +20,12 @@ jobs:
         id: bump
         run: |
           CURRENT=$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.0")
-          BRANCH=${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+          
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BRANCH="${{ github.head_ref }}"
+          else
+            BRANCH="${{ github.ref_name }}"
+          fi
           
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
           
@@ -35,10 +38,25 @@ jobs:
           echo "version=$NEW" >> $GITHUB_OUTPUT
           echo "📦 $CURRENT → 🎯 $NEW"
 
+  tag:
+    needs: determine
+    runs-on: ubuntu-latest
+    name: 🏷️ v${{ needs.determine.outputs.version }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: 🏷️ Create tag
         if: github.event_name == 'push'
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git tag -a "v${{ steps.bump.outputs.version }}" -m "v${{ steps.bump.outputs.version }}"
-          git push origin "v${{ steps.bump.outputs.version }}"
+          git tag -a "v${{ needs.determine.outputs.version }}" -m "v${{ needs.determine.outputs.version }}"
+          git push origin "v${{ needs.determine.outputs.version }}"
+          
+      - name: 👀 Preview
+        if: github.event_name == 'pull_request'
+        run: echo "Will create v${{ needs.determine.outputs.version }} when merged"
