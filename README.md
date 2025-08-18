@@ -1,15 +1,9 @@
 # Actions
 
 <p align="center">
-  <p>
-    <img src="https://github.com/Zwicii/Actions/actions/workflows/semver.yaml/badge.svg" alt="📝 Semantic Versioning">
-  </p>
-  &nbsp;&nbsp;
-  <p>
-    <img src="https://img.shields.io/github/v/tag/Zwicii/Actions?label=version&sort=semver" alt="Version">
-  </p>
-  &nbsp;&nbsp;
-  <p>
-    <img src="https://img.shields.io/github/v/tag/Zwicii/Actions?label=version&sort=semver&color=purple" alt="Version">
-  </p>
+  [![📝 Semantic Versioning](https://github.com/Zwicii/Actions/actions/workflows/semver.yaml/badge.svg)](https://github.com/Zwicii/Actions/actions/workflows/semver.yaml) 
+  
+  [![Version](https://img.shields.io/github/v/tag/Zwicii/Actions?label=version&sort=semver)](https://github.com/Zwicii/Actions/tags) 
+  
+  [![Version](https://img.shields.io/github/v/tag/Zwicii/Actions?label=version&sort=semver&color=purple)](https://github.com/Zwicii/Actions/tags)
 </p>
