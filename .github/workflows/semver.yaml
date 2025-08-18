@@ -1,9 +1,10 @@
 name: Version Bump
 
 on:
+  pull_request:
+    types: [opened, synchronize]
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   version:
@@ -21,7 +22,13 @@ jobs:
         run: |
           # 📋 Get current version or default to 1.0.0
           CURRENT=$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.0")
-          BRANCH=${GITHUB_REF##*/}
+          
+          # 🌿 Get branch name (for PR: head branch, for push: main)
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BRANCH="${{ github.head_ref }}"
+          else
+            BRANCH="${{ github.ref_name }}"
+          fi
           
           echo "📦 Current version: $CURRENT"
           echo "🌿 Branch: $BRANCH"
@@ -37,9 +44,10 @@ jobs:
           esac
           
           echo "new_version=$NEW" >> $GITHUB_OUTPUT
-          echo "🎯 New version: $NEW"
+          echo "🎯 New version will be: $NEW"
 
       - name: 🏷️ Create and push tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           # 🛠️ Configure git
           git config user.name "$GITHUB_ACTOR"
