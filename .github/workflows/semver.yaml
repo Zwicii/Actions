@@ -8,6 +8,8 @@ on:
 jobs:
   bump-version:
     runs-on: ubuntu-latest
+    permissions:
+        contents: write   # allows pushing tags with GITHUB_TOKEN
     steps:
 
       # 1️⃣ Checkout repo with full history
@@ -45,12 +47,9 @@ jobs:
 
       # 4️⃣ Push tag
       - run: |
-          tag=${{ steps.bump_version.outputs.new_version }}
-          message='${{ steps.bump_version.outputs.new_version }}'
-          git config user.name "${GITHUB_ACTOR}"
-          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          git tag -a "${tag}" -m "${message}"
-          git push origin "${tag}"
+          git tag -a "${{ steps.bump_version.outputs.new_version }}" -m "${{ steps.bump_version.outputs.new_version }}"
+          git push https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} --tags
+
 
       # 5️⃣ Output
       - run: |
