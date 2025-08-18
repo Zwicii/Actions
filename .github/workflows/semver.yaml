@@ -1,35 +1,60 @@
-name: Version Bump
+name: 📝 Semantic Versioning
 
 on:
+  pull_request:
+    types: [opened, synchronize]
   push:
-    branches:
-      - main  # run on any branch push
+    branches: [main]
 
 jobs:
-  bump-version:
+  calculate:
+    name: 🎯 Calculate Next Version
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - id: semver-tag
-        uses: gandarez/semver-action@master
+      - uses: actions/checkout@v4
         with:
-          branching_model: "trunk-based"
-          main_branch_name: "main"
-          major_regex: "^majorupdate/.*"
-          minor_regex: "^feature/.*"
-          patch_regex: ".*"
-          prefix: ""  # no 'v' prefix
+          fetch-depth: 0
 
-      - name: Push tag to GitHub
+      - name: 🔢 Determine Version
+        id: bump
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git tag ${{ steps.semver-tag.outputs.semver_tag }}
-          git push origin ${{ steps.semver-tag.outputs.semver_tag }}
+          CURRENT=$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.0")
+          
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BRANCH="${{ github.head_ref }}"
+          else
+            BRANCH="${{ github.ref_name }}"
+          fi
+          
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          
+          case "$BRANCH" in
+            majorupdate/*) NEW="$((MAJOR+1)).0.0" ;;
+            feature/*)     NEW="$MAJOR.$((MINOR+1)).0" ;;
+            *)             NEW="$MAJOR.$MINOR.$((PATCH+1))" ;;
+          esac
+          
+          echo "version=$NEW" >> $GITHUB_OUTPUT
+          echo "📦 $CURRENT → 🎯 $NEW"
 
-      - name: Show new version
+  tag:
+    name: 🏷️ ${{ needs.calculate.outputs.version }}
+    needs: calculate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏷️ Create and Push Tag
+        if: github.event_name == 'push'
         run: |
-          echo "New version: ${{ steps.semver-tag.outputs.semver_tag }}"
-          echo "New tag: ${{ steps.semver-tag.outputs.semver_tag }}"
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git tag -a "v${{ needs.calculate.outputs.version }}" -m "v${{ needs.calculate.outputs.version }}"
+          git push origin "v${{ needs.calculate.outputs.version }}"
+          
